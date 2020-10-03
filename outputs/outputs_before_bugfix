@@ -1,0 +1,85 @@
+This text file contains outputs from valgrind before the bugs are fixed.
+
+Command 1: valgrind ./app/shell-app
+
+Output:
+
+==8587== Memcheck, a memory error detector
+==8587== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==8587== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==8587== Command: ./app/shell-app
+==8587== 
+Averaged sensor reading: 10
+==8587== Conditional jump or move depends on uninitialised value(s)
+==8587==    at 0x109D68: main (main.cpp:9)
+==8587== 
+==8587== 
+==8587== HEAP SUMMARY:
+==8587==     in use at exit: 44 bytes in 2 blocks
+==8587==   total heap usage: 4 allocs, 2 frees, 73,772 bytes allocated
+==8587== 
+==8587== LEAK SUMMARY:
+==8587==    definitely lost: 24 bytes in 1 blocks
+==8587==    indirectly lost: 20 bytes in 1 blocks
+==8587==      possibly lost: 0 bytes in 0 blocks
+==8587==    still reachable: 0 bytes in 0 blocks
+==8587==         suppressed: 0 bytes in 0 blocks
+==8587== Rerun with --leak-check=full to see details of leaked memory
+==8587== 
+==8587== For counts of detected and suppressed errors, rerun with: -v
+==8587== Use --track-origins=yes to see where uninitialised values come from
+==8587== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+
+Reason: The bool variable terminator is not initialized to True or False.
+
+Command 2: valgrind --tool=helgrind ./app/shell-app
+
+Output:
+
+==8634== Helgrind, a thread error detector
+==8634== Copyright (C) 2007-2017, and GNU GPL'd, by OpenWorks LLP et al.
+==8634== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==8634== Command: ./app/shell-app
+==8634== 
+Averaged sensor reading: 10
+==8634== 
+==8634== For counts of detected and suppressed errors, rerun with: -v
+==8634== Use --history-level=approx or =none to gain increased speed, at
+==8634== the cost of reduced accuracy of conflicting-access information
+==8634== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+Command 3: valgrind --leak-check=full ./app/shell-app
+
+Output:
+
+==8657== Memcheck, a memory error detector
+==8657== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==8657== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==8657== Command: ./app/shell-app
+==8657== 
+Averaged sensor reading: 10
+==8657== Conditional jump or move depends on uninitialised value(s)
+==8657==    at 0x109D68: main (main.cpp:9)
+==8657== 
+==8657== 
+==8657== HEAP SUMMARY:
+==8657==     in use at exit: 44 bytes in 2 blocks
+==8657==   total heap usage: 4 allocs, 2 frees, 73,772 bytes allocated
+==8657== 
+==8657== 44 (24 direct, 20 indirect) bytes in 1 blocks are definitely lost in loss record 2 of 2
+==8657==    at 0x4C3017F: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==8657==    by 0x109EA2: AnalogSensor::Read() (AnalogSensor.cpp:16)
+==8657==    by 0x109D44: main (main.cpp:7)
+==8657== 
+==8657== LEAK SUMMARY:
+==8657==    definitely lost: 24 bytes in 1 blocks
+==8657==    indirectly lost: 20 bytes in 1 blocks
+==8657==      possibly lost: 0 bytes in 0 blocks
+==8657==    still reachable: 0 bytes in 0 blocks
+==8657==         suppressed: 0 bytes in 0 blocks
+==8657== 
+==8657== For counts of detected and suppressed errors, rerun with: -v
+==8657== Use --track-origins=yes to see where uninitialised values come from
+==8657== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)
+
+Reason: The pointer goes out of scope, "delete" keyword not used to deallocate memory. Instead use smart pointers.
